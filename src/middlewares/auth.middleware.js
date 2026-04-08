@@ -2,19 +2,19 @@ const jwt = require('jsonwebtoken');
 
 const verificarToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; 
+    const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(403).json({ message: "No se proporcionó un token" });
+        return res.status(403).json({ error: "Acceso denegado. No se proporcionó un token." });
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'clave_secreta_provisoria');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded; 
-        next(); 
+        next();
     } catch (error) {
-        return res.status(401).json({ message: "Token inválido o expirado" });
+        return res.status(401).json({ error: "Token inválido o expirado." });
     }
 };
 
-module.exports = verificarToken;
+module.exports = { verificarToken };

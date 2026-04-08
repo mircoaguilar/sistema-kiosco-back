@@ -10,29 +10,45 @@ const authController = {
             const [rows] = await db.query('SELECT * FROM usuarios WHERE usuario = ? AND estado = 1', [usuario]);
             
             if (rows.length === 0) {
-                return res.status(401).json({ message: "Usuario no encontrado o inactivo" });
+                return res.status(401).json({ message: "Credenciales inválidas" });
             }
 
             const user = rows[0];
 
-            if (password !== user.password) { 
-                return res.status(401).json({ message: "Contraseña incorrecta" });
+            const match = await bcrypt.compare(password, user.password);
+            
+            if (!match) {
+                return res.status(401).json({ message: "Credenciales inválidas" });
+            }
+
+            if (!process.env.JWT_SECRET) {
+                throw new Error("JWT_SECRET no definida en variables de entorno");
             }
 
             const token = jwt.sign(
-                { id: user.id_usuario, rol: user.rol, nombre: user.nombre_completo },
-                process.env.JWT_SECRET || 'clave_secreta_provisoria',
+                { 
+                    id: user.id_usuario, 
+                    rol: user.rol, 
+                    nombre: user.nombre_completo,
+                    username: user.usuario 
+                },
+                process.env.JWT_SECRET,
                 { expiresIn: '8h' } 
             );
 
             res.json({
                 message: "Login exitoso",
                 token,
-                user: { nombre: user.nombre_completo, rol: user.rol }
+                user: { 
+                    id: user.id_usuario,
+                    nombre: user.nombre_completo, 
+                    rol: user.rol 
+                }
             });
 
         } catch (error) {
-            res.status(500).json({ error: "Error en el servidor", details: error.message });
+            console.error(error); 
+            res.status(500).json({ error: "Error en el servidor" });
         }
     }
 };
