@@ -6,6 +6,11 @@
     <title>Punto de Venta</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <style>
+        .table-responsive { max-height: 450px; overflow-y: auto; }
+        .sticky-top { top: -1px; z-index: 1020; }
+        #total-venta { font-size: 3.5rem; }
+    </style>
+    <style>
         .offcanvas { width: 300px !important; }
         .nav-link { color: #333; font-weight: 500; padding: 15px 20px; border-bottom: 1px solid #f0f0f0; }
         .nav-link:hover { background-color: #f8f9fa; }
@@ -78,10 +83,15 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="input-codigo" class="form-label fw-bold">Escanear Codigo de Barras</label>
-                            <input type="text" class="form-control form-control-lg" id="input-codigo" placeholder="Esperando lectura..." autocomplete="off">
+                            <div class="input-group">
+                                <input type="text" class="form-control form-control-lg" id="input-codigo" placeholder="Esperando lectura..." autocomplete="off">
+                                <button class="btn btn-outline-secondary btn-lg" type="button" data-bs-toggle="modal" data-bs-target="#modalBusqueda">
+                                    🔍 Buscar Manual
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <div class="table-responsive">
                             <table class="table table-hover align-middle">
                                 <thead class="table-light sticky-top">
                                     <tr>
@@ -92,8 +102,7 @@
                                         <th>Accion</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabla-carrito">
-                                </tbody>
+                                <tbody id="tabla-carrito"></tbody>
                             </table>
                         </div>
                     </div>
@@ -101,44 +110,59 @@
             </div>
 
             <div class="col-md-4">
-                <div class="card shadow-sm border-primary">
+                <div class="card shadow-sm border-primary mb-4">
                     <div class="card-body text-center">
                         <h4 class="card-title text-muted">Total a Pagar</h4>
                         <h1 class="display-3 fw-bold text-primary mb-4" id="total-venta">$0.00</h1>
                         
-                        <div class="d-flex justify-content-center mb-4">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="check-ticket" style="transform: scale(1.3); margin-right: 10px;">
-                                <label class="form-check-label text-muted fw-bold" for="check-ticket">Imprimir ticket</label>
-                            </div>
+                        <div class="bg-light p-3 rounded mb-3 border">
+                            <label class="form-label fw-bold">Paga con (Efectivo):</label>
+                            <input type="number" id="input-paga-con" class="form-control form-control-lg text-center mb-2" placeholder="0.00">
+                            <h4 class="mb-0 text-muted">Vuelto: <span id="vuelto-texto" class="text-dark fw-bold">$0.00</span></h4>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold small">Monto Digital (Solo para Pago Mixto):</label>
+                            <input type="number" id="input-pago-digital-monto" class="form-control" placeholder="Ej: 500">
                         </div>
                         
-                        <div class="d-grid gap-3">
-                            <button class="btn btn-success btn-lg fw-bold" id="btn-pago-efectivo">
-                                Cobrar en Efectivo
-                            </button>
-                            <button class="btn btn-info btn-lg text-white fw-bold" id="btn-pago-digital">
-                                Transferencia / QR
-                            </button>
-                            
-                            <hr class="mt-2 mb-0">
-
-                            <div class="text-center">
-                                <small class="text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px; line-height: 1;">
-                                    ACCIONES RÁPIDAS
-                                </small>
-                            </div>
-
-                            <button class="btn btn-warning fw-bold mt-0" id="btn-registrar-gasto">
-                                Registrar Gasto
-                            </button>
-
-                            <button class="btn btn-outline-secondary py-2 small fw-bold mt-2" 
-                                    id="btn-reimprimir-ultimo" 
-                                    style="border-style: dashed; background-color: transparent !important; color: #6c757d !important; transition: none;">
-                                Reimprimir Ultimo Ticket
-                            </button>
+                        <div class="form-check form-switch d-flex justify-content-center mb-3">
+                            <input class="form-check-input me-2" type="checkbox" id="check-ticket" style="transform: scale(1.2);">
+                            <label class="form-check-label text-muted fw-bold" for="check-ticket">Imprimir ticket</label>
                         </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg" id="btn-pago-efectivo">Cobrar Efectivo</button>
+                            <button class="btn btn-info btn-lg text-white" id="btn-pago-digital">Solo Digital / QR</button>
+                            <button class="btn btn-warning btn-lg text-white fw-bold" id="btn-pago-mixto">Pago Mixto</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalBusqueda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Buscador de Productos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="input-busqueda-manual" class="form-control mb-3" placeholder="Escriba nombre o código...">
+                    <div class="table-responsive" style="max-height: 400px;">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-busqueda-manual"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
