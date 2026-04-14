@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Eli Mini Market</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .table-responsive { max-height: 70vh; overflow-y: auto; }
+        .sticky-top { top: -1px; z-index: 1020; }
+        .offcanvas { width: 300px !important; }
+        .nav-link { color: #333; font-weight: 500; padding: 15px 20px; border-bottom: 1px solid #f0f0f0; }
+        .nav-link:hover { background-color: #f8f9fa; }
+        .stock-bajo { background-color: #f8d7da !important; }
+        .btn-gestion-cat { padding: 0.25rem 0.5rem; }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Eli Mini Market</span>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3 d-none d-md-inline" id="nombre-vendedor">Cargando...</span>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="menuLateral">
+        <div class="offcanvas-header bg-dark text-white">
+            <h5 class="offcanvas-title">Panel de Control</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="index.html">Punto de Venta</a>
+                <a class="nav-link" href="caja.html">Gestión de Caja</a>
+                <div>
+                    <a class="nav-link d-flex justify-content-between align-items-center bg-light" data-bs-toggle="collapse" href="#menuStock">
+                        Inventario <small>▲</small>
+                    </a>
+                    <div class="collapse show bg-light" id="menuStock">
+                        <a class="nav-link ps-4 py-2 small fw-bold text-primary" href="productos.html">Lista de Productos</a>
+                        <a class="nav-link ps-4 py-2 small" href="proveedores.html">Proveedores</a>
+                    </div>
+                </div>
+                <a class="nav-link" href="ventas-dia.html">Reportes</a>
+            </nav>
+            <div class="mt-auto p-3 border-top">
+                <button class="btn btn-danger w-100" id="btn-logout">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid px-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
+                <h4 class="mb-0 fw-bold text-dark">📦 Gestión de Productos</h4>
+                <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalProducto" id="btnNuevoProd">
+                    + Agregar Producto
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-8">
+                        <input type="text" id="buscar-producto" class="form-control form-control-lg" placeholder="Buscar por nombre o código de barras...">
+                    </div>
+                    <div class="col-md-4">
+                        <select id="filtro-categoria" class="form-select form-select-lg">
+                            <option value="">Todas las Categorías</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive border rounded">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th width="150">Código</th>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>P. Venta</th>
+                                <th>Stock</th>
+                                <th width="100" class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-productos-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="modalTitulo">Nuevo Producto</h5>
+                    <div class="ms-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="modo-rapido" checked>
+                        <label class="form-check-label small text-white" for="modo-rapido">Modo Rápido</label>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="form-producto">
+                    <div class="modal-body">
+                        <input type="hidden" id="id-producto">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Código de Barras</label>
+                            <input type="text" id="codigo" class="form-control" required autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Nombre del Producto</label>
+                            <input type="text" id="nombre" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Categoría</label>
+                            <div class="input-group">
+                                <select id="categoria" class="form-select" required></select>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalCategorias">⚙️</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold small">Precio Venta</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" id="precio_venta" step="0.01" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold small">Stock Actual</label>
+                                <input type="number" id="stock" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary px-4">Guardar Producto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCategorias" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header">
+                    <h6 class="modal-title fw-bold">Gestión de Categorías</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-nueva-cat" class="input-group mb-3">
+                        <input type="text" id="input-nueva-cat" class="form-control form-control-sm" placeholder="Nueva..." required>
+                        <button class="btn btn-success btn-sm" type="submit">+</button>
+                    </form>
+                    <ul class="list-group list-group-flush border rounded" id="lista-categorias-gestion" style="max-height: 200px; overflow-y: auto;"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/productos.js"></script>
+</body>
+</html>
