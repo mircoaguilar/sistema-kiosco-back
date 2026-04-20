@@ -80,7 +80,7 @@
         </div>
 
         <div class="row g-3 mb-4 text-dark">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card shadow-sm border-start border-primary border-start-4 h-100">
                     <div class="card-body">
                         <small class="text-muted fw-bold d-block mb-1">MONTO INICIAL</small>
@@ -88,7 +88,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card shadow-sm border-start border-success border-start-4 h-100">
                     <div class="card-body">
                         <small class="text-muted fw-bold d-block mb-1">VENTAS EFECTIVO</small>
@@ -96,7 +96,23 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
+                <div class="card shadow-sm border-start border-info border-start-4 h-100">
+                    <div class="card-body">
+                        <small class="text-muted fw-bold d-block mb-1">VENTAS DIGITALES</small>
+                        <h4 class="fw-bold m-0 text-info" id="monto-digital">$0.00</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card shadow-sm border-start border-primary border-start-4 h-100">
+                    <div class="card-body">
+                        <small class="text-muted fw-bold d-block mb-1">INGRESOS</small>
+                        <h4 class="fw-bold m-0 text-primary" id="monto-ingresos">$0.00</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
                 <div class="card shadow-sm border-start border-danger border-start-4 h-100">
                     <div class="card-body">
                         <small class="text-muted fw-bold d-block mb-1">GASTOS</small>
@@ -104,7 +120,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card shadow-sm bg-dark text-white text-center h-100">
                     <div class="card-body">
                         <small class="text-white-50 fw-bold d-block mb-1">EFECTIVO ESPERADO</small>
@@ -128,6 +144,7 @@
                                         <th class="ps-3">Hora</th>
                                         <th>Descripción</th>
                                         <th>Tipo</th>
+                                        <th>Medio</th>
                                         <th class="text-end pe-3">Monto</th>
                                     </tr>
                                 </thead>
@@ -196,6 +213,14 @@
                         <button type="submit" class="btn btn-danger w-100 py-2 fw-bold">CONFIRMAR CIERRE</button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="toastCaja" class="toast align-items-center text-bg-success border-0">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMensaje"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>

@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { imprimirTicket } = require('../services/printer');
 
 const ventasController = {
     crearVenta: async (req, res) => {
@@ -8,7 +9,8 @@ const ventasController = {
             monto_efectivo, 
             monto_transferencia, 
             monto_pagado,
-            items 
+            items,
+            imprimir_ticket
         } = req.body;
 
         const id_usuario = req.user.id; 
@@ -52,6 +54,17 @@ const ventasController = {
             }
 
             await connection.commit();
+
+            if (imprimir_ticket) {
+                await imprimirTicket({
+                    id_venta,
+                    total_venta,
+                    metodo_pago,
+                    monto_pagado,
+                    items
+                });
+            }
+
             res.json({ message: "Venta registrada con éxito", id_venta });
 
         } catch (error) {
@@ -60,6 +73,42 @@ const ventasController = {
             res.status(500).json({ error: "Error al procesar la venta", details: error.message });
         } finally {
             connection.release();
+        }
+    },
+
+    reimprimirUltimo: async (req, res) => {
+        try {
+            const [venta] = await db.query(`
+                SELECT * FROM ventas 
+                ORDER BY id_venta DESC 
+                LIMIT 1
+            `);
+
+            if (venta.length === 0) {
+                return res.status(404).json({ error: "No hay ventas" });
+            }
+
+            const id_venta = venta[0].id_venta;
+
+            const [items] = await db.query(`
+                SELECT dv.cantidad, dv.precio_unitario, p.nombre
+                FROM detalle_ventas dv
+                JOIN productos p ON dv.id_producto = p.id_producto
+                WHERE dv.id_venta = ?
+            `, [id_venta]);
+
+            await imprimirTicket({
+                id_venta,
+                total_venta: venta[0].total_venta,
+                metodo_pago: venta[0].metodo_pago,
+                monto_pagado: venta[0].monto_pagado,
+                items
+            });
+
+            res.json({ message: "Ticket reimpreso" });
+
+        } catch (error) {
+            res.status(500).json({ error: "Error al reimprimir" });
         }
     }
 };

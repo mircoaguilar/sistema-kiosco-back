@@ -42,7 +42,9 @@ async function verificarEstadoCaja() {
 
         document.getElementById('monto-inicial').innerText = formatear(data.monto_inicial);
         document.getElementById('monto-ventas').innerText = formatear(data.ventas_efectivo);
-        document.getElementById('monto-gastos').innerText = formatear(data.total_gastos);
+        document.getElementById('monto-digital').innerText = formatear(data.ventas_digital);
+        document.getElementById('monto-ingresos').innerText = formatear(data.total_ingresos);
+        document.getElementById('monto-gastos').innerText = formatear(data.total_egresos);
         document.getElementById('monto-esperado').innerText = formatear(data.efectivo_esperado);
 
         pintarMovimientos(data.movimientos);
@@ -120,8 +122,21 @@ document.getElementById('formCerrarCaja').addEventListener('submit', async (e) =
         const data = await res.json();
         if (res.ok) {
             modalCerrar.hide();
-            alert(`Caja cerrada correctamente.${formatear(data.detalle.diferencia)}`);
-            location.reload();
+
+            let msg = 'Caja cerrada correctamente';
+            const dif = data.detalle.diferencia;
+
+            if (Math.abs(dif) > 0.01) {
+                msg += dif > 0
+                    ? ` (Sobrante: ${formatear(dif)})`
+                    : ` (Faltante: ${formatear(Math.abs(dif))})`;
+            }
+
+            mostrarToast(msg);
+
+            setTimeout(() => {
+                location.reload();
+            }, 4000);
         } else {
             alert(data.error || "Error al cerrar");
         }
@@ -145,17 +160,71 @@ function pintarMovimientos(movimientos) {
     }
 
     movimientos.forEach(m => {
-        const esGasto = m.tipo === 'Gasto';
+        const esEgreso = m.tipo === 'egreso';
+        const esIngreso = m.tipo === 'ingreso';
+        const esVenta = m.tipo === 'venta';
+
+        let badgeTipo = '';
+        let textoTipo = '';
+
+        if (esEgreso) {
+            badgeTipo = 'bg-danger-subtle text-danger';
+            textoTipo = 'Gasto';
+        } else if (esIngreso) {
+            badgeTipo = 'bg-primary-subtle text-primary';
+            textoTipo = 'Ingreso';
+        } else {
+            badgeTipo = 'bg-success-subtle text-success';
+            textoTipo = 'Venta';
+        }
+
+        let badgeMedio = '';
+        let textoMedio = '';
+
+        if (m.medio === 'efectivo') {
+            badgeMedio = 'bg-success-subtle text-success';
+            textoMedio = 'Efectivo';
+        } else {
+            badgeMedio = 'bg-info-subtle text-info';
+            textoMedio = 'Transferencia/QR';
+        }
+
         tabla.innerHTML += `
-            <tr>
-                <td class="ps-3 text-muted small">${new Date(m.fecha_hora).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
-                <td class="fw-bold">${m.descripcion}</td>
-                <td><span class="badge ${esGasto ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'}">${m.tipo}</span></td>
-                <td class="text-end pe-3 fw-bold ${esGasto ? 'text-danger' : ''}">
-                    ${esGasto ? '-' : ''}${formatear(m.monto)}
-                </td>
-            </tr>`;
+        <tr>
+            <td class="ps-3 text-muted small">
+                ${new Date(m.fecha_hora).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+            </td>
+
+            <td class="fw-bold">${m.descripcion}</td>
+
+            <td>
+                <span class="badge ${badgeTipo}">
+                    ${textoTipo}
+                </span>
+            </td>
+
+            <td>
+                <span class="badge ${badgeMedio}">
+                    ${textoMedio}
+                </span>
+            </td>
+
+            <td class="text-end pe-3 fw-bold ${esEgreso ? 'text-danger' : ''}">
+                ${esEgreso ? '-' : ''}${formatear(m.monto)}
+            </td>
+        </tr>`;
     });
+}
+
+function mostrarToast(mensaje, tipo = 'success') {
+    const toastEl = document.getElementById('toastCaja');
+    const toastMensaje = document.getElementById('toastMensaje');
+
+    toastEl.className = `toast align-items-center text-bg-${tipo} border-0`;
+    toastMensaje.innerText = mensaje;
+
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
 }
 
 function formatear(n) {

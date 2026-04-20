@@ -313,6 +313,21 @@ document.getElementById('btn-confirmar-mixto').onclick = () => {
     procesarVenta('mixto');
 };
 
+document.getElementById('btn-reimprimir-ultimo').onclick = async () => {
+    try {
+        const res = await fetch(`${API_URL}/ventas/reimprimir`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error();
+
+        mostrarToast("Ticket reimpreso", "success");
+
+    } catch {
+        mostrarToast("Error al reimprimir", "error");
+    }
+};
+
 document.getElementById('btn-logout').onclick = () => { 
     localStorage.clear(); 
     window.location.href = 'login.html'; 

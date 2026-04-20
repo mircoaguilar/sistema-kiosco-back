@@ -170,12 +170,40 @@ const cajaController = {
             );
 
             const [movimientos] = await db.query(`
-                (SELECT fecha_hora, CONCAT('Venta #', id_venta) as descripcion, 'venta' as tipo, (monto_efectivo + monto_transferencia) as monto 
-                FROM ventas WHERE id_sesion = ?)
+                SELECT 
+                fecha_hora,
+                CONCAT('Venta #', id_venta) as descripcion,
+                'venta' as tipo,
+                'efectivo' as medio,
+                monto_efectivo as monto
+                FROM ventas 
+                WHERE id_sesion = ? AND monto_efectivo > 0
+
                 UNION ALL
-                (SELECT fecha_hora, concepto as descripcion, tipo, monto FROM movimientos_caja WHERE id_sesion = ?)
-                ORDER BY fecha_hora DESC LIMIT 10
-            `, [id_sesion, id_sesion]);
+
+                SELECT 
+                fecha_hora,
+                CONCAT('Venta #', id_venta) as descripcion,
+                'venta' as tipo,
+                'transferencia' as medio,
+                monto_transferencia as monto
+                FROM ventas 
+                WHERE id_sesion = ? AND monto_transferencia > 0
+
+                UNION ALL
+
+                SELECT 
+                fecha_hora,
+                concepto as descripcion,
+                tipo,
+                'efectivo' as medio,
+                monto
+                FROM movimientos_caja 
+                WHERE id_sesion = ?
+
+                ORDER BY fecha_hora DESC
+                LIMIT 10
+            `, [id_sesion, id_sesion, id_sesion]);
 
             const vEfe = parseFloat(ventas[0].efe || 0);
             const vDig = parseFloat(ventas[0].dig || 0);
