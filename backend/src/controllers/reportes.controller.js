@@ -6,15 +6,12 @@ const reportesController = {
         try {
             const { categoria, proveedor, desde, hasta } = req.query;
 
-            // 🔹 FILTROS PRODUCTOS
             let filtrosProductos = `WHERE 1=1`;
             let paramsProductos = [];
 
-            // 🔹 FILTROS VENTAS (sin p)
             let filtrosVentas = `WHERE 1=1`;
             let paramsVentas = [];
 
-            // 🔥 FECHAS (en ambos)
             if (desde && hasta) {
                 filtrosProductos += ` AND DATE(v.fecha_hora) BETWEEN ? AND ?`;
                 filtrosVentas += ` AND DATE(v.fecha_hora) BETWEEN ? AND ?`;
@@ -35,7 +32,6 @@ const reportesController = {
                 filtrosVentas += ` AND DATE(v.fecha_hora) = CURDATE()`;
             }
 
-            // 🔹 SOLO PRODUCTOS
             if (categoria) {
                 filtrosProductos += ` AND p.id_categoria = ?`;
                 paramsProductos.push(categoria);
@@ -46,7 +42,6 @@ const reportesController = {
                 paramsProductos.push(proveedor);
             }
 
-            // 🔹 QUERY PRODUCTOS
             const [rows] = await db.query(`
                 SELECT 
                     p.nombre,
@@ -64,12 +59,10 @@ const reportesController = {
                 ORDER BY total DESC
             `, paramsProductos);
 
-            // 🔹 TOTAL GENERAL
             const totalGeneral = rows.reduce((acc, item) => {
                 return acc + parseFloat(item.total);
             }, 0);
 
-            // 🔹 QUERY CANTIDAD DE VENTAS
             const [ventasCount] = await db.query(`
                 SELECT COUNT(*) AS total_ventas
                 FROM ventas v
@@ -78,7 +71,6 @@ const reportesController = {
 
             const cantidadVentas = ventasCount[0].total_ventas;
 
-            // 🔹 RESPONSE
             res.json({
                 resumen: {
                     total_dia: totalGeneral,
@@ -90,6 +82,54 @@ const reportesController = {
         } catch (error) {
             res.status(500).json({
                 error: "Error al generar reporte",
+                details: error.message
+            });
+        }
+    },
+
+    topProductos: async (req, res) => {
+        try {
+            const { desde, hasta, categoria } = req.query;
+
+            let filtros = `WHERE 1=1`;
+            let params = [];
+
+            if (desde && hasta) {
+                filtros += ` AND DATE(v.fecha_hora) BETWEEN ? AND ?`;
+                params.push(desde, hasta);
+            } else if (desde) {
+                filtros += ` AND DATE(v.fecha_hora) >= ?`;
+                params.push(desde);
+            } else if (hasta) {
+                filtros += ` AND DATE(v.fecha_hora) <= ?`;
+                params.push(hasta);
+            } else {
+                filtros += ` AND DATE(v.fecha_hora) = CURDATE()`;
+            }
+
+            if (categoria) {
+                filtros += ` AND p.id_categoria = ?`;
+                params.push(categoria);
+            }
+
+            const [rows] = await db.query(`
+                SELECT 
+                    p.nombre,
+                    SUM(dv.cantidad) AS cantidad
+                FROM detalle_ventas dv
+                JOIN productos p ON dv.id_producto = p.id_producto
+                JOIN ventas v ON dv.id_venta = v.id_venta
+                ${filtros}
+                GROUP BY p.id_producto
+                ORDER BY cantidad DESC
+                LIMIT 10
+            `, params);
+
+            res.json(rows);
+
+        } catch (error) {
+            res.status(500).json({
+                error: "Error en top productos",
                 details: error.message
             });
         }

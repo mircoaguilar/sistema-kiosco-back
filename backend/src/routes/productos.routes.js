@@ -9,5 +9,6 @@ router.get('/:codigo', productosController.obtenerPorCodigo);
 router.post('/', verificarToken, productosController.crear);
 router.put('/:id', verificarToken, productosController.actualizar);
 router.delete('/:id', verificarToken, productosController.eliminar);
+router.put('/precios/masivo', verificarToken, productosController.actualizarPreciosMasivo);
 
 module.exports = router;
