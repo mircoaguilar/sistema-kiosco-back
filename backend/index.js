@@ -28,7 +28,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // 🔥 IMPORTANTE para preflight
+app.options('/*', cors(corsOptions));
 
 // Middleware base
 app.use(express.json());
