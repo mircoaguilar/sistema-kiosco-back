@@ -6,9 +6,13 @@ const pool = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    port: process.env.DB_PORT, // Asegúrate de tener esta variable en Render
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    ssl: {
+        rejectUnauthorized: false // <--- ESTO ES LO QUE FALTA PARA AIVEN
+    }
 });
 
 module.exports = pool.promise();
