@@ -89,11 +89,12 @@ const cajaController = {
                 `UPDATE sesiones_caja SET 
                     monto_ventas_efectivo = ?, 
                     monto_ventas_digital = ?, 
+                    monto_ventas_tarjeta = ?, 
                     monto_final_efectivo = ?, 
                     estado = 'cerrada', 
                     fecha_cierre = NOW() 
                 WHERE id_sesion = ?`,
-                [vEfe, vDig, monto_final_efectivo, id_sesion]
+                [vEfe, vDig, vTar, monto_final_efectivo, id_sesion]
             );
 
             res.json({
@@ -156,7 +157,7 @@ const cajaController = {
             const montoInicial = parseFloat(sesion[0].monto_inicial);
 
             const [ventas] = await db.query(
-                'SELECT SUM(monto_efectivo) as efe, SUM(monto_transferencia) as dig FROM ventas WHERE id_sesion = ?',
+                'SELECT SUM(monto_efectivo) as efe, SUM(monto_transferencia) as dig, SUM(monto_tarjeta) as tar FROM ventas WHERE id_sesion = ?',
                 [id_sesion]
             );
 
@@ -194,6 +195,17 @@ const cajaController = {
 
                 SELECT 
                 fecha_hora,
+                CONCAT('Venta #', id_venta) as descripcion,
+                'venta' as tipo,
+                'tarjeta' as medio,
+                monto_tarjeta as monto
+                FROM ventas 
+                WHERE id_sesion = ? AND monto_tarjeta > 0
+
+                UNION ALL
+
+                SELECT 
+                fecha_hora,
                 concepto as descripcion,
                 tipo,
                 'efectivo' as medio,
@@ -203,10 +215,11 @@ const cajaController = {
 
                 ORDER BY fecha_hora DESC
                 LIMIT 10
-            `, [id_sesion, id_sesion, id_sesion]);
+            `, [id_sesion, id_sesion, id_sesion, id_sesion]);
 
             const vEfe = parseFloat(ventas[0].efe || 0);
             const vDig = parseFloat(ventas[0].dig || 0);
+            const vTar = parseFloat(ventas[0].tar || 0);
             const totalEgresos = parseFloat(movimientosTotales[0].total_egresos || 0);
             const totalIngresos = parseFloat(movimientosTotales[0].total_ingresos || 0);
 
@@ -216,6 +229,7 @@ const cajaController = {
                 monto_inicial: montoInicial,
                 ventas_efectivo: vEfe,
                 ventas_digital: vDig,
+                ventas_tarjeta: vTar,
                 total_ingresos: totalIngresos,
                 total_egresos: totalEgresos,
                 efectivo_esperado: (montoInicial + vEfe + totalIngresos) - totalEgresos,
