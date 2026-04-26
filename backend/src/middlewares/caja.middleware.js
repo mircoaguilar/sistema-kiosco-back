@@ -5,7 +5,7 @@ const verificarCajaAbierta = async (req, res, next) => {
 
     try {
         const [rows] = await db.query(
-            'SELECT id_sesion FROM sesiones_caja WHERE id_usuario = ? AND estado = "abierta"',
+            "SELECT id_sesion FROM sesiones_caja WHERE id_usuario = ? AND estado = 'abierta'",
             [id_usuario]
         );
 

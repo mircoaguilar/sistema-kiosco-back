@@ -6,7 +6,7 @@ const cajaController = {
         const id_usuario = req.user.id;
         try {
             const [rows] = await db.query(
-                'SELECT id_sesion, monto_inicial FROM sesiones_caja WHERE id_usuario = ? AND estado = "abierta"',
+                "SELECT id_sesion, monto_inicial FROM sesiones_caja WHERE id_usuario = ? AND estado = 'abierta'",
                 [id_usuario]
             );
 
