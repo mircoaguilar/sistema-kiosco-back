@@ -4,7 +4,7 @@
     }
 })();
 
-const API_URL = 'https://sistema-kiosco-backend.onrender.com/api/proveedores';
+const API_URL = 'https://sistema-kiosco.onrender.com/api/proveedores';
 const token = localStorage.getItem('jwt_token');
 const nombreUsuario = localStorage.getItem('nombre_usuario') || 'Usuario';
 

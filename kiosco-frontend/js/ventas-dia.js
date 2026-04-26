@@ -4,8 +4,8 @@
     }
 })();
 
-const API_URL = 'https://sistema-kiosco-backend.onrender.com/api/reportes/productos-dia';
-const BASE_API = 'https://sistema-kiosco-backend.onrender.com/api';
+const API_URL = 'https://sistema-kiosco.onrender.com/api/reportes/productos-dia';
+const BASE_API = 'https://sistema-kiosco.onrender.com/api';
 
 const token = localStorage.getItem('jwt_token');
 const nombreUsuario = localStorage.getItem('nombre_usuario') || 'Usuario';

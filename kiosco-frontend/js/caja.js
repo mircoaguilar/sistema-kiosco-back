@@ -2,7 +2,7 @@
     if (!localStorage.getItem('jwt_token')) window.location.href = 'login.html';
 })();
 
-const API_URL = 'https://sistema-kiosco-backend.onrender.com/api';
+const API_URL = 'https://sistema-kiosco.onrender.com/api';
 const token = localStorage.getItem('jwt_token');
 const nombreUsuario = localStorage.getItem('nombre_usuario') || 'Cajero'; 
 

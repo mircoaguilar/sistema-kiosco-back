@@ -30,7 +30,7 @@ formLogin.addEventListener('submit', async (e) => {
     btnEntrar.innerText = 'Cargando...';
 
     try {
-        const response = await fetch('https://sistema-kiosco-backend.onrender.com/api/auth/login', {
+        const response = await fetch('https://sistema-kiosco.onrender.com/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ usuario, password })
