@@ -49,7 +49,7 @@ const cajaController = {
             console.log(`Consultando si existen cajas abiertas para usuario: ${id_usuario}`);
             
             const [abierta] = await db.query(
-                'SELECT 1 FROM sesiones_caja WHERE id_usuario = ? AND estado = "abierta"',
+                'SELECT 1 FROM sesiones_caja WHERE id_usuario = ? AND estado = \'abierta\'',
                 [id_usuario]
             );
 
@@ -60,7 +60,7 @@ const cajaController = {
 
             console.log("Insertando nueva sesión de caja...");
             const [result] = await db.query(
-                'INSERT INTO sesiones_caja (id_usuario, monto_inicial, estado) VALUES (?, ?, "abierta")',
+                'INSERT INTO sesiones_caja (id_usuario, monto_inicial, estado) VALUES (?, ?, \'abierta\')',
                 [id_usuario, monto]
             );
 
