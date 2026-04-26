@@ -46,6 +46,8 @@ async function cargarFiltros() {
 }
 
 async function cargarReporte() {
+    console.log("Iniciando carga de reporte...");
+    
     try {
         const desde = document.getElementById('filtro-desde').value;
         const hasta = document.getElementById('filtro-hasta').value;
@@ -64,24 +66,43 @@ async function cargarReporte() {
             url += '?' + params.join('&');
         }
 
+        console.log("Consultando URL:", url);
+
         const res = await fetch(url, {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json' 
+            }
         });
 
-        if (!res.ok) throw new Error();
+        // Debug del estado de la respuesta
+        console.log("Estado de la respuesta del servidor:", res.status);
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error("Error en la respuesta del servidor:", errorText);
+            throw new Error(`Error ${res.status}: ${errorText}`);
+        }
 
         const data = await res.json();
+        console.log("Datos recibidos del servidor:", data);
 
-        renderTabla(data.productos);
-        renderResumen(data.resumen);
+        // Validación de estructura: Aseguramos que data contenga lo esperado
+        if (!data) {
+            console.error("La respuesta está vacía");
+            return;
+        }
+
+        renderTabla(data.productos || []); // Si es undefined, pasamos array vacío
+        renderResumen(data.resumen || { total_dia: 0, cantidad_ventas: 0 });
 
     } catch (error) {
-        console.error(error);
+        console.error("DETALLE DEL ERROR EN REPORTE:", error);
 
         tabla.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center text-danger py-4">
-                    Error al cargar el reporte
+                    <strong>Error al cargar:</strong> ${error.message}
                 </td>
             </tr>
         `;
