@@ -15,6 +15,7 @@ const authController = {
 
             const user = rows[0];
 
+
             const match = await bcrypt.compare(password, user.password);
 
             if (!match) {

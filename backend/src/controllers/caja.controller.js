@@ -22,33 +22,58 @@ const cajaController = {
     },
 
     abrir: async (req, res) => {
+        console.log("--- Inicio de proceso abrir caja ---");
+        
+        // Debug de entrada
+        console.log("Cuerpo de la petición:", req.body);
+        console.log("Usuario detectado en token:", req.user);
+
         const { monto_inicial } = req.body;
         const monto = parseFloat(monto_inicial);
+        
+        // Validar si req.user existe antes de acceder al ID
+        if (!req.user || !req.user.id) {
+            console.error("ERROR: No se encontró id_usuario en el request");
+            return res.status(401).json({ msg: "Usuario no autenticado" });
+        }
+
         const id_usuario = req.user.id;
 
         // VALIDACIÓN DE SEGURIDAD
         if (isNaN(monto) || monto < 0) {
+            console.error("ERROR: Monto inválido recibido:", monto_inicial);
             return res.status(400).json({ msg: "El monto inicial no puede ser negativo" });
         }
 
         try {
+            console.log(`Consultando si existen cajas abiertas para usuario: ${id_usuario}`);
+            
             const [abierta] = await db.query(
                 'SELECT 1 FROM sesiones_caja WHERE id_usuario = ? AND estado = "abierta"',
                 [id_usuario]
             );
 
             if (abierta.length > 0) {
+                console.warn("Intento fallido: El usuario ya tiene una caja abierta.");
                 return res.status(400).json({ msg: "Ya tenés una caja abierta" });
             }
 
+            console.log("Insertando nueva sesión de caja...");
             const [result] = await db.query(
                 'INSERT INTO sesiones_caja (id_usuario, monto_inicial, estado) VALUES (?, ?, "abierta")',
                 [id_usuario, monto]
             );
 
+            console.log("Caja abierta exitosamente. ID Sesión:", result.insertId);
             res.json({ message: "Caja abierta", id_sesion: result.insertId });
+
         } catch (error) {
-            res.status(500).json({ error: "Error al abrir" });
+            // Aquí verás el error de base de datos específico (ej: tabla no existe, columna mal escrita)
+            console.error("ERROR CRÍTICO EN BASE DE DATOS:", error);
+            res.status(500).json({ 
+                error: "Error interno al abrir la caja", 
+                details: error.message 
+            });
         }
     },
 
