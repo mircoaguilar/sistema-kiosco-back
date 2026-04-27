@@ -18,7 +18,7 @@ let proveedores = [];
 
 async function cargarProveedores() {
     try {
-        const res = await fetch(API_URL, {
+        const res = await fetch(`${API_URL}/proveedores`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -112,7 +112,7 @@ form.addEventListener('submit', async (e) => {
         let res;
 
         if (id) {
-            res = await fetch(`${API_URL}/${id}`, {
+           res = await fetch(`${API_URL}/proveedores/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ form.addEventListener('submit', async (e) => {
                 body: JSON.stringify(data)
             });
         } else {
-            res = await fetch(API_URL, {
+            res = await fetch(`${API_URL}/proveedores`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
