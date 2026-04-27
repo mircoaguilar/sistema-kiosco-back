@@ -2,6 +2,8 @@ const formLogin = document.getElementById('form-login');
 const alertContainer = document.getElementById('alert-container');
 const btnEntrar = document.getElementById('btn-entrar');
 
+const API_URL = window.APP_CONFIG.API_URL;
+
 function mostrarAlerta(mensaje, tipo) {
     alertContainer.innerHTML = `
         <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
@@ -30,7 +32,7 @@ formLogin.addEventListener('submit', async (e) => {
     btnEntrar.innerText = 'Cargando...';
 
     try {
-        const response = await fetch('https://kiosco-staging.onrender.com/api/auth/login', {
+        const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ usuario, password })

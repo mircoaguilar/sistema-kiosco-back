@@ -10,11 +10,12 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 
+const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',')
+    : ['http://localhost:3000'];
+
 const corsOptions = {
-    origin: [
-        'https://sistema-kiosco-web-tasting.onrender.com',
-        'http://localhost:3000'
-    ],
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true

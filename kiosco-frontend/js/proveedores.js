@@ -4,7 +4,7 @@
     }
 })();
 
-const API_URL = 'https://kiosco-staging.onrender.com/api/proveedores';
+const API_URL = window.APP_CONFIG.API_URL;
 const token = localStorage.getItem('jwt_token');
 const nombreUsuario = localStorage.getItem('nombre_usuario') || 'Usuario';
 

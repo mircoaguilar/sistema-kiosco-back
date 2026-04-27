@@ -4,8 +4,7 @@
     }
 })();
 
-const API_URL = 'https://kiosco-staging.onrender.com/api/reportes/productos-dia';
-const BASE_API = 'https://kiosco-staging.onrender.com/api';
+const API_URL = window.APP_CONFIG.API_URL;
 
 const token = localStorage.getItem('jwt_token');
 const nombreUsuario = localStorage.getItem('nombre_usuario') || 'Usuario';
@@ -18,10 +17,10 @@ const totalDiaHTML = document.getElementById('total-dia');
 async function cargarFiltros() {
     try {
         const [catRes, provRes] = await Promise.all([
-            fetch(`${BASE_API}/categorias`, {
+            fetch(`${API_URL}/categorias`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             }),
-            fetch(`${BASE_API}/proveedores`, {
+            fetch(`${API_URL}/proveedores`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
         ]);

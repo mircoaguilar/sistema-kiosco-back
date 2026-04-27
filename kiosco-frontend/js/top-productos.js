@@ -1,4 +1,4 @@
-const API_URL = 'https://kiosco-staging.onrender.com/api/reportes/top-productos';
+const API_URL = window.APP_CONFIG.API_URL;
 const token = localStorage.getItem('jwt_token');
 const nombreUsuario = localStorage.getItem('nombre_usuario') || 'Usuario';
 document.getElementById('nombre-vendedor').innerText = `Vendedor: ${nombreUsuario}`;
@@ -37,7 +37,7 @@ async function cargarTop() {
 
 async function cargarCategorias() {
     try {
-        const res = await fetch('https://kiosco-staging.onrender.com/api/categorias', {
+        const res = await fetch(`${API_URL}/categorias`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
