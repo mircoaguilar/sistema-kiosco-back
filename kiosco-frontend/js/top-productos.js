@@ -11,7 +11,7 @@ async function cargarTop() {
         const hasta = document.getElementById('filtro-hasta').value;
         const categoria = document.getElementById('filtro-categoria').value;
 
-        let url = `${API_URL}/reportes`;
+        let url = `${API_URL}/reportes/top-productos`;
         const params = [];
 
         if (desde) params.push(`desde=${desde}`);

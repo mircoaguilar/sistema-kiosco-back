@@ -51,7 +51,7 @@ async function cargarReporte() {
         const categoria = document.getElementById('filtro-categoria').value;
         const proveedor = document.getElementById('filtro-proveedor').value;
 
-        let url = `${API_URL}/reportes`;
+        let url = `${API_URL}/reportes/productos-dia`;
         const params = [];
 
         if (categoria) params.push(`categoria=${categoria}`);
