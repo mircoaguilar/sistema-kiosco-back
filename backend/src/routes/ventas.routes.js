@@ -5,6 +5,13 @@ const { verificarCajaAbierta } = require('../middlewares/caja.middleware');
 const ventasController = require('../controllers/ventas.controller');
 
 router.post('/', verificarToken, verificarCajaAbierta, ventasController.crearVenta);
+
 router.get('/reimprimir', verificarToken, ventasController.reimprimirUltimo);
+
+router.get('/historial', verificarToken, ventasController.listarVentas);
+
+router.get('/:id', verificarToken, ventasController.obtenerDetalleVenta);
+
+router.put('/:id/anular', verificarToken, ventasController.anularVenta);
 
 module.exports = router;
