@@ -101,6 +101,12 @@ document.getElementById('btn-limpiar').addEventListener('click', () => {
     cargarTop();
 });
 
+document.getElementById('btn-logout').addEventListener('click', () => {
+    localStorage.clear();
+    window.location.href = 'login.html';
+});
+
+
 document.getElementById('filtro-desde').addEventListener('change', cargarTop);
 document.getElementById('filtro-hasta').addEventListener('change', cargarTop);
 document.getElementById('filtro-categoria').addEventListener('change', cargarTop);

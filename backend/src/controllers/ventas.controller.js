@@ -145,7 +145,7 @@ const ventasController = {
                 `SELECT 
                     v.id_venta,
                     v.fecha_hora,
-                    u.nombre AS vendedor,
+                    u.nombre_completo AS vendedor,
                     v.metodo_pago,
                     v.total_final,
                     v.estado
@@ -173,7 +173,7 @@ const ventasController = {
             const [ventas] = await db.query(
                 `SELECT 
                     v.*,
-                    u.nombre AS vendedor
+                    u.nombre_completo AS vendedor
                 FROM ventas v
                 JOIN usuarios u ON v.id_usuario = u.id_usuario
                 WHERE v.id_venta = ?`,
