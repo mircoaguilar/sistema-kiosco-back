@@ -58,6 +58,51 @@ async function cargarHistorial() {
     }
 }
 
+function mostrarToast(mensaje, tipo = 'success') {
+    let toastContainer = document.getElementById('toast-container');
+
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+        document.body.appendChild(toastContainer);
+    }
+
+    const toastId = `toast-${Date.now()}`;
+
+    const colores = {
+        success: 'text-bg-success',
+        danger: 'text-bg-danger',
+        warning: 'text-bg-warning',
+        info: 'text-bg-primary'
+    };
+
+    const toastHTML = `
+        <div id="${toastId}" class="toast align-items-center ${colores[tipo] || colores.success} border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${mensaje}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, {
+        delay: 3000
+    });
+
+    toast.show();
+
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+
 function renderTabla(ventas) {
     if (!ventas || ventas.length === 0) {
         tabla.innerHTML = `
@@ -119,7 +164,7 @@ async function verDetalleVenta(idVenta) {
 
     } catch (error) {
         console.error(error);
-        alert('Error al cargar detalle de venta');
+        mostrarToast('Error al cargar detalle de venta', 'danger');
     }
 }
 
@@ -193,7 +238,7 @@ document.getElementById('confirmar-anulacion').addEventListener('click', async (
     const motivo = document.getElementById('motivo-anulacion').value.trim();
 
     if (!motivo || motivo.length < 3) {
-        alert('Ingrese un motivo válido');
+        mostrarToast('Ingrese un motivo válido', 'warning');
         return;
     }
 
@@ -213,7 +258,7 @@ document.getElementById('confirmar-anulacion').addEventListener('click', async (
             throw new Error(data.error || 'Error al anular venta');
         }
 
-        alert('Venta anulada correctamente');
+        mostrarToast('Venta anulada correctamente', 'success');
 
         bootstrap.Modal.getInstance(document.getElementById('modalAnularVenta')).hide();
 
@@ -221,7 +266,7 @@ document.getElementById('confirmar-anulacion').addEventListener('click', async (
 
     } catch (error) {
         console.error(error);
-        alert(error.message);
+        mostrarToast(error.message, 'danger');
     }
 });
 
