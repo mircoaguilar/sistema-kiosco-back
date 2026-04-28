@@ -71,7 +71,18 @@
                         <a class="nav-link ps-4 py-2 small" href="proveedores.html">Proveedores</a>
                     </div>
                 </div>
-                <a class="nav-link" href="ventas-dia.html">Reportes</a>
+                <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuReportes">
+                    Reportes <small>▼</small>
+                </a>
+                <div class="collapse bg-light" id="menuReportes">
+                    <a class="nav-link ps-4 py-2 small" href="ventas-dia.html">Ventas</a>
+                    <a class="nav-link ps-4 py-2 small" href="top-productos.html">
+                        Top Productos
+                    </a>
+                    <a class="nav-link ps-4 py-2 small" href="historial-ventas.html">
+                        Historial de Ventas
+                    </a>
+                </div>
             </nav>
             <div class="mt-auto p-3 border-top">
                 <button class="btn btn-danger w-100" id="btn-logout">Cerrar Sesión</button>

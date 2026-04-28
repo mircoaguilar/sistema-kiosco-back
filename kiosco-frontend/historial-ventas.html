@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Productos</title>
+    <title>Historial de Ventas</title>
     <link href="/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -31,7 +31,17 @@
 
         .nav-link:hover { 
             background-color: #f8f9fa; 
-        } 
+        }
+
+        .estado-activa {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        .estado-anulada {
+            color: #dc3545;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -75,10 +85,8 @@
             </a>
             <div class="collapse show bg-light" id="menuReportes">
                 <a class="nav-link ps-4 py-2 small" href="ventas-dia.html">Ventas</a>
-                <a class="nav-link ps-4 py-2 small fw-bold text-primary" href="top-productos.html">
-                    Top Productos
-                </a>
-                <a class="nav-link ps-4 py-2 small" href="historial-ventas.html">
+                <a class="nav-link ps-4 py-2 small" href="top-productos.html">Top Productos</a>
+                <a class="nav-link ps-4 py-2 small fw-bold text-primary" href="historial-ventas.html">
                     Historial de Ventas
                 </a>
             </div>
@@ -93,12 +101,11 @@
 <!-- CONTENIDO -->
 <div class="container-fluid px-4">
 
-    <h4 class="mb-3 fw-bold">Top Productos</h4>
+    <h4 class="mb-3 fw-bold">Historial de Ventas</h4>
 
     <!-- FILTROS -->
     <div class="card shadow-sm mb-3">
         <div class="card-body">
-
             <div class="row g-3 align-items-end">
 
                 <div class="col-md-3">
@@ -111,14 +118,16 @@
                     <input type="date" id="filtro-hasta" class="form-control">
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">Categoría</label>
-                    <select id="filtro-categoria" class="form-select">
-                        <option value="">Todas las categorías</option>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Estado</label>
+                    <select id="filtro-estado" class="form-select">
+                        <option value="">Todas</option>
+                        <option value="activa">Activas</option>
+                        <option value="anulada">Anuladas</option>
                     </select>
                 </div>
 
-                <div class="col-12 d-flex justify-content-end">
+                <div class="col-md-3 d-flex justify-content-end">
                     <button id="btn-limpiar" class="btn btn-secondary">
                         Limpiar
                     </button>
@@ -131,7 +140,7 @@
     <!-- TABLA -->
     <div class="card shadow-sm">
         <div class="card-header bg-white">
-            <h5 class="mb-0 fw-bold">Ranking de Productos</h5>
+            <h5 class="mb-0 fw-bold">Listado de Ventas</h5>
         </div>
 
         <div class="card-body">
@@ -140,16 +149,20 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light sticky-top">
                         <tr>
-                            <th>#</th>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Vendedor</th>
+                            <th>Pago</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
 
-                    <tbody id="tabla-top">
+                    <tbody id="tabla-historial">
                         <tr>
-                            <td colspan="3" class="text-center py-4 text-muted">
-                                Cargando datos...
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                Cargando historial...
                             </td>
                         </tr>
                     </tbody>
@@ -162,9 +175,57 @@
 
 </div>
 
+<!-- MODAL DETALLE -->
+<div class="modal fade" id="modalDetalleVenta" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Detalle de Venta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="detalle-venta-contenido">
+                Cargando detalle...
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ANULACIÓN -->
+<div class="modal fade" id="modalAnularVenta" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Anular Venta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="venta-id-anular">
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Motivo</label>
+                    <textarea id="motivo-anulacion" class="form-control" rows="3" placeholder="Ingrese motivo de anulación"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-danger" id="confirmar-anulacion">
+                    Confirmar Anulación
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script src="/js/bootstrap.bundle.min.js"></script>
 <script src="/js/config.js"></script>
-<script src="/js/top-productos.js"></script>
+<script src="/js/historial-ventas.js"></script>
 
 </body>
 </html>
