@@ -122,17 +122,19 @@ async function cargarProveedores() {
 
 async function cargarProductos() {
     try {
-        const res = await fetch(`${API_URL}/productos`, { headers: { 'Authorization': `Bearer ${token}` }});
+        const estado = document.getElementById('filtro-estado')?.value || 'activos';
+
+        const res = await fetch(`${API_URL}/productos?estado=${estado}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         productos = await res.json();
         aplicarFiltros();
     } catch { console.error("Error productos"); }
 }
 
 function renderizarTabla(lista) {
-    // Filtrar solo activos para la tabla
-    const activos = lista.filter(p => p.activo !== 0);
 
-    tablaBody.innerHTML = activos.map(p => {
+    tablaBody.innerHTML = lista.map(p => {
         const esBajo = parseInt(p.stock) <= parseInt(p.stock_minimo);
         const precioARS = parseFloat(p.precio_venta).toLocaleString('es-AR', { 
             style: 'currency', currency: 'ARS' 
@@ -156,9 +158,16 @@ function renderizarTabla(lista) {
                     <button class="btn btn-acciones text-primary border-end" onclick="prepararEdicion(${p.id_producto})" title="Editar">
                         <i class="bi bi-pencil-fill"></i>
                     </button>
-                    <button class="btn btn-acciones text-danger" onclick="eliminarProducto(${p.id_producto})" title="Baja">
-                        <i class="bi bi-trash3-fill"></i>
-                    </button>
+
+                    ${p.activo == 1 ? `
+                        <button class="btn btn-acciones text-danger" onclick="eliminarProducto(${p.id_producto})" title="Dar de baja">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    ` : `
+                        <button class="btn btn-acciones text-success" onclick="reactivarProducto(${p.id_producto})" title="Reactivar">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                    `}
                 </div>
             </td>
         </tr>`;
@@ -244,11 +253,29 @@ window.eliminarProducto = async (id) => {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
-            productos = productos.filter(p => p.id_producto !== id);
-            renderizarTabla(productos);
+            await cargarProductos();
             mostrarToast("Producto dado de baja correctamente", "warning");
         }
     } catch { mostrarToast("Error al eliminar", "danger"); }
+};
+
+window.reactivarProducto = async (id) => {
+    if (!(await confirmar("¿Reactivar este producto?"))) return;
+
+    try {
+        const res = await fetch(`${API_URL}/productos/${id}/reactivar`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            mostrarToast("Producto reactivado correctamente", "success");
+            await cargarProductos();
+        }
+
+    } catch {
+        mostrarToast("Error al reactivar", "danger");
+    }
 };
 
 window.eliminarCat = async (id) => {
@@ -308,6 +335,7 @@ function aplicarFiltros() {
 document.getElementById('buscar-producto').addEventListener('input', aplicarFiltros);
 document.getElementById('filtro-categoria').addEventListener('change', aplicarFiltros);
 document.getElementById('filtro-proveedor').addEventListener('change', aplicarFiltros);
+document.getElementById('filtro-estado').addEventListener('change', cargarProductos);
 
 document.getElementById('btnNuevoProd').onclick = async () => {
     limpiarFormulario();

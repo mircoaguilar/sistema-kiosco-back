@@ -292,6 +292,7 @@ document.getElementById('filtro-desde').addEventListener('change', cargarHistori
 document.getElementById('filtro-hasta').addEventListener('change', cargarHistorial);
 document.getElementById('filtro-estado').addEventListener('change', cargarHistorial);
 
+
 document.addEventListener('DOMContentLoaded', async () => {
     const d = new Date();
     const hoy = d.getFullYear() + '-' +

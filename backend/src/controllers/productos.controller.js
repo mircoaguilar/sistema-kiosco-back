@@ -3,6 +3,18 @@ const db = require('../config/db');
 const productosController = {
 
     obtenerTodos: async (req, res) => {
+        const { estado = "activos" } = req.query;
+
+        let filtro = "WHERE p.activo = 1";
+
+        if (estado === "eliminados") {
+            filtro = "WHERE p.activo = 0";
+        }
+
+        if (estado === "todos") {
+            filtro = "";
+        }
+
         try {
             const [rows] = await db.query(`
                 SELECT 
@@ -12,16 +24,16 @@ const productosController = {
                 FROM productos p 
                 LEFT JOIN categorias c ON p.id_categoria = c.id_categoria 
                 LEFT JOIN proveedores pr ON p.id_proveedor = pr.id_proveedor
-                WHERE p.activo = 1
+                ${filtro}
                 ORDER BY p.nombre ASC
             `);
 
             res.json(rows);
 
         } catch (error) {
-            res.status(500).json({ 
-                error: "Error al obtener productos", 
-                details: error.message 
+            res.status(500).json({
+                error: "Error al obtener productos",
+                details: error.message
             });
         }
     },
@@ -214,7 +226,28 @@ const productosController = {
         } catch (error) {
             res.status(500).json({ error: "Error al actualizar precios", details: error.message });
         }
-    }
+    },
+
+    reactivar: async (req, res) => {
+        const { id } = req.params;
+
+        try {
+            await db.query(
+                'UPDATE productos SET activo = 1 WHERE id_producto = ?',
+                [id]
+            );
+
+            res.json({
+                message: "Producto reactivado correctamente"
+            });
+
+        } catch (error) {
+            res.status(500).json({
+                error: "Error al reactivar producto",
+                details: error.message
+            });
+        }
+    },
 };
 
 module.exports = productosController;
