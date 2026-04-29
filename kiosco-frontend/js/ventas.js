@@ -265,14 +265,17 @@ function agregarVentaRapida() {
         id_producto: null,
         nombre: descripcion,
         descripcion_manual: descripcion,
-        id_categoria: categoria,   
+        id_categoria: categoria,
         precio_unitario: monto,
         cantidad,
         es_manual: true
     });
 
     renderizar();
-    cerrarModalVentaRapida();
+
+    const modalEl = document.getElementById('modalVentaRapida');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    modal.hide();
 }
 
 const modalMovimiento = new bootstrap.Modal(document.getElementById('modalMovimiento'));
