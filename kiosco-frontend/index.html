@@ -314,15 +314,26 @@
     </div>
 </div>
 
-<div id="modal-venta-rapida">
-    <input id="vr-descripcion" placeholder="Descripción">
-    
-    <select id="vr-categoria"></select>
+<div class="modal fade" id="modalVentaRapida" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-3">
 
-    <input id="vr-monto" type="number" placeholder="Monto">
-    <input id="vr-cantidad" type="number" value="1">
+      <h5 class="mb-3">Venta rápida</h5>
 
-    <button onclick="agregarVentaRapida()">Agregar</button>
+      <input id="vr-descripcion" class="form-control mb-2" placeholder="Descripción">
+
+      <select id="vr-categoria" class="form-control mb-2"></select>
+
+      <input id="vr-monto" type="number" class="form-control mb-2" placeholder="Monto">
+
+      <input id="vr-cantidad" type="number" class="form-control mb-3" value="1">
+
+      <button class="btn btn-success w-100" onclick="agregarVentaRapida()">
+        Agregar
+      </button>
+
+    </div>
+  </div>
 </div>
 
     <script src="/js/bootstrap.bundle.min.js"></script>
