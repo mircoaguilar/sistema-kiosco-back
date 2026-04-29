@@ -35,8 +35,8 @@ const reportesController = {
             }
 
             if (categoria) {
-                filtrosProductos += ` AND p.id_categoria = ?`;
-                paramsProductos.push(categoria);
+                filtrosProductos += ` AND (p.id_categoria = ? OR dv.id_categoria = ?)`;
+                paramsProductos.push(categoria, categoria);
             }
 
             if (proveedor) {
@@ -112,8 +112,8 @@ const reportesController = {
             }
 
             if (categoria) {
-                filtros += ` AND p.id_categoria = ?`;
-                params.push(categoria);
+                filtros += ` AND (p.id_categoria = ? OR dv.id_categoria = ?)`;
+                params.push(categoria, categoria);
             }
 
             const [rows] = await db.query(`
