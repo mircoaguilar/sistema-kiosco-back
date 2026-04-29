@@ -256,6 +256,8 @@ function agregarVentaRapida() {
     const monto = parseFloat(document.getElementById("vr-monto").value);
     const cantidad = parseFloat(document.getElementById("vr-cantidad").value || 1);
 
+    cargarCategoriasVentaRapida();
+
     if (!descripcion || !monto || !categoria) {
         alert("Completa todos los campos");
         return;
@@ -267,7 +269,7 @@ function agregarVentaRapida() {
         descripcion_manual: descripcion,
         id_categoria: categoria,
         precio_unitario: monto,
-        cantidad,
+        cantidad: cantidad || 1,
         es_manual: true
     });
 
@@ -276,6 +278,29 @@ function agregarVentaRapida() {
     const modalEl = document.getElementById('modalVentaRapida');
     const modal = bootstrap.Modal.getInstance(modalEl);
     modal.hide();
+}
+
+async function cargarCategoriasVentaRapida() {
+    try {
+        const res = await fetch(`${API_URL}/categorias`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const categorias = await res.json();
+
+        const select = document.getElementById("vr-categoria");
+
+        select.innerHTML = `
+            <option value="">Seleccionar categoría</option>
+        ` + categorias.map(c => `
+            <option value="${c.id_categoria}">
+                ${c.nombre_categoria}
+            </option>
+        `).join('');
+
+    } catch (err) {
+        console.error("Error cargando categorías:", err);
+    }
 }
 
 const modalMovimiento = new bootstrap.Modal(document.getElementById('modalMovimiento'));

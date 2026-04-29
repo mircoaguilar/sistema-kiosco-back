@@ -52,6 +52,7 @@ const ventasController = {
             const id_venta = ventaResult.insertId;
 
             for (const item of items) {
+                const cantidad = item.es_manual ? 1 : item.cantidad;
                 if (item.es_manual) {
                     await connection.query(
                         `INSERT INTO detalle_ventas 
@@ -60,9 +61,9 @@ const ventasController = {
                         [
                             id_venta,
                             item.descripcion_manual,
-                            item.cantidad,
+                            cantidad,
                             item.precio_unitario,
-                            item.cantidad * item.precio_unitario,
+                            cantidad * item.precio_unitario,
                             item.id_categoria || null
                         ]
                     );
@@ -74,15 +75,15 @@ const ventasController = {
                         [
                             id_venta,
                             item.id_producto,
-                            item.cantidad,
+                            cantidad,
                             item.precio_unitario,
-                            item.cantidad * item.precio_unitario
+                            cantidad * item.precio_unitario
                         ]
                     );
 
                     await connection.query(
                         `UPDATE productos SET stock = stock - ? WHERE id_producto = ?`,
-                        [item.cantidad, item.id_producto]
+                        [cantidad, item.id_producto]
                     );
                 }
             }
