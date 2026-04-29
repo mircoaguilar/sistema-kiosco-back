@@ -281,13 +281,37 @@ function agregarVentaRapida() {
 
 async function cargarCategoriasVentaRapida() {
     try {
+        console.log("=== INICIANDO CARGA CATEGORÍAS VENTA RÁPIDA ===");
+
+        console.log("API_URL:", API_URL);
+        console.log("Token existe:", !!token);
+
         const res = await fetch(`${API_URL}/categorias`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
+
+        console.log("Status respuesta:", res.status);
+        console.log("OK respuesta:", res.ok);
+
+        if (!res.ok) {
+            throw new Error(`Error HTTP: ${res.status}`);
+        }
 
         const categorias = await res.json();
 
+        console.log("Categorías recibidas:", categorias);
+        console.log("Cantidad categorías:", categorias.length);
+
         const select = document.getElementById("vr-categoria");
+
+        console.log("Select encontrado:", select);
+
+        if (!select) {
+            console.error("No existe #vr-categoria en el DOM");
+            return;
+        }
 
         select.innerHTML = `
             <option value="">Seleccionar categoría</option>
@@ -297,22 +321,15 @@ async function cargarCategoriasVentaRapida() {
             </option>
         `).join('');
 
+        console.log("HTML final select:", select.innerHTML);
+
+        console.log("=== CATEGORÍAS CARGADAS CORRECTAMENTE ===");
+
     } catch (err) {
-        console.error("Error cargando categorías:", err);
+        console.error("=== ERROR CARGANDO CATEGORÍAS ===");
+        console.error(err);
     }
 }
-
-const modalMovimiento = new bootstrap.Modal(document.getElementById('modalMovimiento'));
-
-document.getElementById('btn-registrar-gasto').onclick = () => {
-
-    document.getElementById('movimiento-concepto').value = '';
-    document.getElementById('movimiento-monto').value = '';
-    document.getElementById('movimiento-tipo').value = 'egreso';
-    document.getElementById('movimiento-metodo').value = 'efectivo';
-
-    modalMovimiento.show();
-};
 
 document.getElementById('btn-guardar-movimiento').onclick = async () => {
 
