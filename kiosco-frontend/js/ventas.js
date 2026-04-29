@@ -246,7 +246,6 @@ function abrirModalVentaRapida() {
 
     document.getElementById("vr-descripcion").value = '';
     document.getElementById("vr-monto").value = '';
-    document.getElementById("vr-cantidad").value = 1;
     document.getElementById("vr-categoria").value = '';
 
     cargarCategoriasVentaRapida();
@@ -256,8 +255,7 @@ function agregarVentaRapida() {
     const descripcion = document.getElementById("vr-descripcion").value;
     const categoria = document.getElementById("vr-categoria").value;
     const monto = parseFloat(document.getElementById("vr-monto").value);
-    const cantidad = parseFloat(document.getElementById("vr-cantidad").value) || 1;
-
+    
     if (!descripcion || !monto || !categoria) {
         alert("Completa todos los campos");
         return;
