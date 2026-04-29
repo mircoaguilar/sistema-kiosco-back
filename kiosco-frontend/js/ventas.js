@@ -20,6 +20,7 @@ const listaBusquedaManual = document.getElementById('lista-busqueda-manual');
 const inputBusquedaManual = document.getElementById('input-busqueda-manual');
 
 const modalMixto = new bootstrap.Modal(document.getElementById('modalMixto'));
+const modalMovimiento = new bootstrap.Modal(document.getElementById('modalMovimiento'));
 const mixtoTotal = document.getElementById('mixto-total');
 const mixtoEfectivo = document.getElementById('mixto-efectivo');
 const mixtoTransferencia = document.getElementById('mixto-transferencia');
@@ -402,6 +403,15 @@ document.getElementById('btn-confirmar-mixto').onclick = () => {
     modalMixto.hide();
 
     procesarVenta('mixto');
+};
+
+document.getElementById('btn-registrar-gasto').onclick = () => {
+    document.getElementById('movimiento-concepto').value = '';
+    document.getElementById('movimiento-monto').value = '';
+    document.getElementById('movimiento-tipo').value = 'egreso';
+    document.getElementById('movimiento-metodo').value = 'efectivo';
+
+    modalMovimiento.show();
 };
 
 document.getElementById('btn-confirmar-peso').onclick = () => {
