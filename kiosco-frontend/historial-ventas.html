@@ -224,11 +224,11 @@
 </div>
 
 <div class="modal fade" id="modalCorregirVenta" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
 
             <div class="modal-header bg-warning">
-                <h5 class="modal-title">Corregir Venta</h5>
+                <h5 class="modal-title fw-bold">Corregir Venta</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
@@ -237,24 +237,69 @@
                 <input type="hidden" id="venta-id-corregir">
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Motivo de corrección</label>
-                    <textarea id="motivo-correccion" class="form-control" rows="2"></textarea>
+                    <label class="form-label fw-bold">
+                        Motivo de corrección
+                    </label>
+                    <textarea 
+                        id="motivo-correccion" 
+                        class="form-control" 
+                        rows="2"
+                        placeholder="Ej: Cliente pidió suprema en lugar de pata muslo"
+                    ></textarea>
                 </div>
 
-                <div id="correccion-items-container">
-                    <p class="text-muted">
-                        Próximamente edición de productos.
-                    </p>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 40%">Producto</th>
+                                <th style="width: 15%">Cantidad</th>
+                                <th style="width: 20%">Precio Unitario</th>
+                                <th style="width: 15%">Subtotal</th>
+                                <th style="width: 10%">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-correccion-items">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">
+                                    Cargando productos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <button 
+                        class="btn btn-outline-primary"
+                        id="btn-agregar-producto-corregir"
+                        type="button"
+                    >
+                        + Agregar Producto
+                    </button>
+
+                    <div class="text-end">
+                        <small class="text-muted">Total corregido</small>
+                        <div class="fs-4 fw-bold text-success" id="total-corregido">
+                            $0.00
+                        </div>
+                    </div>
                 </div>
 
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                <button 
+                    class="btn btn-secondary" 
+                    data-bs-dismiss="modal"
+                >
                     Cancelar
                 </button>
 
-                <button class="btn btn-warning" id="confirmar-correccion">
+                <button 
+                    class="btn btn-warning fw-bold"
+                    id="confirmar-correccion"
+                >
                     Guardar Corrección
                 </button>
             </div>

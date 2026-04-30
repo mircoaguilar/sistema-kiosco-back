@@ -14,6 +14,7 @@ const tabla = document.getElementById('tabla-historial');
 
 let ventaSeleccionada = null;
 let ventaCorregir = null;
+let productosCorreccion = [];
 
 async function cargarHistorial() {
     try {
@@ -241,14 +242,133 @@ function abrirModalAnular(idVenta) {
     modal.show();
 }
 
-function abrirModalCorregir(idVenta) {
+async function abrirModalCorregir(idVenta) {
     ventaCorregir = idVenta;
 
     document.getElementById('venta-id-corregir').value = idVenta;
     document.getElementById('motivo-correccion').value = '';
 
-    const modal = new bootstrap.Modal(document.getElementById('modalCorregirVenta'));
-    modal.show();
+    try {
+        const res = await fetch(`${API_URL}/ventas/${idVenta}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Error al cargar venta');
+        }
+
+        productosCorreccion = data.items.map(item => ({
+            id_producto: item.id_producto,
+            nombre: item.nombre,
+            cantidad: parseFloat(item.cantidad),
+            precio_unitario: parseFloat(item.precio_unitario),
+            es_manual: item.es_manual || 0
+        }));
+
+        renderProductosCorreccion();
+
+        const modal = new bootstrap.Modal(document.getElementById('modalCorregirVenta'));
+        modal.show();
+
+    } catch (error) {
+        console.error(error);
+        mostrarToast('Error al cargar productos para corrección', 'danger');
+    }
+}
+
+function renderProductosCorreccion() {
+    const tabla = document.getElementById('tabla-correccion-items');
+    let total = 0;
+
+    if (!productosCorreccion.length) {
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-muted">
+                    No hay productos
+                </td>
+            </tr>
+        `;
+        document.getElementById('total-corregido').innerText = '$0.00';
+        return;
+    }
+
+    tabla.innerHTML = productosCorreccion.map((item, index) => {
+        const subtotal = item.cantidad * item.precio_unitario;
+        total += subtotal;
+
+        return `
+            <tr>
+                <td>
+                    <input 
+                        type="text"
+                        class="form-control"
+                        value="${item.nombre}"
+                        onchange="actualizarNombreProducto(${index}, this.value)"
+                    >
+                </td>
+
+                <td>
+                    <input
+                        type="number"
+                        min="1"
+                        step="0.01"
+                        class="form-control"
+                        value="${item.cantidad}"
+                        onchange="actualizarCantidadProducto(${index}, this.value)"
+                    >
+                </td>
+
+                <td>
+                    <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="form-control"
+                        value="${item.precio_unitario}"
+                        onchange="actualizarPrecioProducto(${index}, this.value)"
+                    >
+                </td>
+
+                <td class="fw-bold">
+                    $${subtotal.toFixed(2)}
+                </td>
+
+                <td>
+                    <button
+                        class="btn btn-sm btn-danger"
+                        onclick="eliminarProductoCorreccion(${index})"
+                    >
+                        X
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    document.getElementById('total-corregido').innerText = `$${total.toFixed(2)}`;
+}
+
+function actualizarNombreProducto(index, valor) {
+    productosCorreccion[index].nombre = valor;
+}
+
+function actualizarCantidadProducto(index, valor) {
+    productosCorreccion[index].cantidad = parseFloat(valor) || 1;
+    renderProductosCorreccion();
+}
+
+function actualizarPrecioProducto(index, valor) {
+    productosCorreccion[index].precio_unitario = parseFloat(valor) || 0;
+    renderProductosCorreccion();
+}
+
+function eliminarProductoCorreccion(index) {
+    productosCorreccion.splice(index, 1);
+    renderProductosCorreccion();
 }
 
 document.getElementById('confirmar-correccion').addEventListener('click', async () => {
@@ -273,7 +393,13 @@ document.getElementById('confirmar-correccion').addEventListener('click', async 
         }
 
         const venta = detalleData.venta;
-        const items = detalleData.items;
+        const items = productosCorreccion.map(item => ({
+                            id_producto: item.id_producto,
+                            cantidad: item.cantidad,
+                            precio_unitario: item.precio_unitario,
+                            es_manual: item.es_manual,
+                            descripcion_manual: item.es_manual ? item.nombre : null
+                        }));
 
         const payload = {
             motivo,
@@ -346,6 +472,18 @@ document.getElementById('confirmar-anulacion').addEventListener('click', async (
         console.error(error);
         mostrarToast(error.message, 'danger');
     }
+});
+
+document.getElementById('btn-agregar-producto-corregir').addEventListener('click', () => {
+    productosCorreccion.push({
+        id_producto: null,
+        nombre: '',
+        cantidad: 1,
+        precio_unitario: 0,
+        es_manual: 1
+    });
+
+    renderProductosCorreccion();
 });
 
 document.getElementById('btn-limpiar').addEventListener('click', () => {
