@@ -13,6 +13,7 @@ document.getElementById('nombre-vendedor').innerText = `Vendedor: ${nombreUsuari
 const tabla = document.getElementById('tabla-historial');
 
 let ventaSeleccionada = null;
+let ventaCorregir = null;
 
 async function cargarHistorial() {
     try {
@@ -133,9 +134,15 @@ function renderTabla(ventas) {
                 </button>
 
                 ${v.estado !== 'anulada'
-                    ? `<button class="btn btn-sm btn-danger" onclick="abrirModalAnular(${v.id_venta})">
-                        Anular
-                    </button>`
+                    ? `
+                        <button class="btn btn-sm btn-warning me-1" onclick="abrirModalCorregir(${v.id_venta})">
+                            Corregir
+                        </button>
+
+                        <button class="btn btn-sm btn-danger" onclick="abrirModalAnular(${v.id_venta})">
+                            Anular
+                        </button>
+                    `
                     : ''
                 }
             </td>
@@ -233,6 +240,77 @@ function abrirModalAnular(idVenta) {
     const modal = new bootstrap.Modal(document.getElementById('modalAnularVenta'));
     modal.show();
 }
+
+function abrirModalCorregir(idVenta) {
+    ventaCorregir = idVenta;
+
+    document.getElementById('venta-id-corregir').value = idVenta;
+    document.getElementById('motivo-correccion').value = '';
+
+    const modal = new bootstrap.Modal(document.getElementById('modalCorregirVenta'));
+    modal.show();
+}
+
+document.getElementById('confirmar-correccion').addEventListener('click', async () => {
+    const motivo = document.getElementById('motivo-correccion').value.trim();
+
+    if (!motivo || motivo.length < 3) {
+        mostrarToast('Ingrese un motivo válido', 'warning');
+        return;
+    }
+
+    try {
+        const detalleRes = await fetch(`${API_URL}/ventas/${ventaCorregir}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const detalleData = await detalleRes.json();
+
+        if (!detalleRes.ok) {
+            throw new Error(detalleData.error || 'Error al obtener venta');
+        }
+
+        const venta = detalleData.venta;
+        const items = detalleData.items;
+
+        const payload = {
+            motivo,
+            metodo_pago: venta.metodo_pago,
+            monto_efectivo: venta.monto_efectivo,
+            monto_transferencia: venta.monto_transferencia,
+            monto_tarjeta: venta.monto_tarjeta,
+            tipo_tarjeta: venta.tipo_tarjeta,
+            items
+        };
+
+        const res = await fetch(`${API_URL}/ventas/${ventaCorregir}/corregir`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Error al corregir venta');
+        }
+
+        mostrarToast('Venta corregida correctamente', 'success');
+
+        bootstrap.Modal.getInstance(document.getElementById('modalCorregirVenta')).hide();
+
+        cargarHistorial();
+
+    } catch (error) {
+        console.error(error);
+        mostrarToast(error.message, 'danger');
+    }
+});
 
 document.getElementById('confirmar-anulacion').addEventListener('click', async () => {
     const motivo = document.getElementById('motivo-anulacion').value.trim();

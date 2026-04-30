@@ -326,7 +326,200 @@ const ventasController = {
         } finally {
             connection.release();
         }
-    }
+    },
+
+    corregirVenta: async (req, res) => {
+        const { id } = req.params;
+        const {
+            items,
+            metodo_pago,
+            monto_efectivo,
+            monto_transferencia,
+            monto_tarjeta,
+            tipo_tarjeta,
+            motivo
+        } = req.body;
+
+        if (!motivo || motivo.trim().length < 3) {
+            return res.status(400).json({
+                error: "Motivo de corrección obligatorio"
+            });
+        }
+
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({
+                error: "Items inválidos"
+            });
+        }
+
+        const connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        try {
+            const [ventas] = await connection.query(
+                `SELECT * FROM ventas WHERE id_venta = ?`,
+                [id]
+            );
+
+            if (ventas.length === 0) {
+                await connection.rollback();
+                return res.status(404).json({
+                    error: "Venta no encontrada"
+                });
+            }
+
+            const venta = ventas[0];
+
+            if (venta.estado === 'anulada') {
+                await connection.rollback();
+                return res.status(400).json({
+                    error: "No se puede corregir una venta anulada"
+                });
+            }
+
+            const [detallesActuales] = await connection.query(
+                `SELECT * FROM detalle_ventas WHERE id_venta = ?`,
+                [id]
+            );
+
+            await connection.query(
+                `INSERT INTO ventas_correcciones
+                (id_venta, id_usuario, motivo, datos_anteriores)
+                VALUES (?, ?, ?, ?)`,
+                [
+                    id,
+                    req.user.id,
+                    motivo,
+                    JSON.stringify({
+                        venta,
+                        items: detallesActuales
+                    })
+                ]
+            );
+
+            for (const item of detallesActuales) {
+                if (item.id_producto) {
+                    await connection.query(
+                        `UPDATE productos
+                        SET stock = stock + ?
+                        WHERE id_producto = ?`,
+                        [item.cantidad, item.id_producto]
+                    );
+                }
+            }
+
+            await connection.query(
+                `DELETE FROM detalle_ventas WHERE id_venta = ?`,
+                [id]
+            );
+
+            let nuevoTotal = 0;
+
+            for (const item of items) {
+                const cantidad = item.es_manual ? 1 : item.cantidad;
+                const subtotal = cantidad * item.precio_unitario;
+                nuevoTotal += subtotal;
+
+                if (item.es_manual) {
+                    await connection.query(
+                        `INSERT INTO detalle_ventas
+                        (id_venta, id_producto, descripcion_manual, es_manual, cantidad, precio_unitario, subtotal, id_categoria)
+                        VALUES (?, NULL, ?, 1, ?, ?, ?, ?)`,
+                        [
+                            id,
+                            item.descripcion_manual,
+                            cantidad,
+                            item.precio_unitario,
+                            subtotal,
+                            item.id_categoria || null
+                        ]
+                    );
+                } else {
+                    await connection.query(
+                        `INSERT INTO detalle_ventas
+                        (id_venta, id_producto, cantidad, precio_unitario, subtotal)
+                        VALUES (?, ?, ?, ?, ?)`,
+                        [
+                            id,
+                            item.id_producto,
+                            cantidad,
+                            item.precio_unitario,
+                            subtotal
+                        ]
+                    );
+
+                    await connection.query(
+                        `UPDATE productos
+                        SET stock = stock - ?
+                        WHERE id_producto = ?`,
+                        [cantidad, item.id_producto]
+                    );
+                }
+            }
+
+            let recargo_porcentaje = 0;
+            let recargo_monto = 0;
+
+            if (metodo_pago === 'tarjeta') {
+                recargo_porcentaje = 8;
+                recargo_monto = nuevoTotal * 0.08;
+            }
+
+            const total_final = nuevoTotal + recargo_monto;
+
+            await connection.query(
+                `UPDATE ventas
+                SET
+                    total_venta = ?,
+                    total_final = ?,
+                    metodo_pago = ?,
+                    monto_efectivo = ?,
+                    monto_transferencia = ?,
+                    monto_tarjeta = ?,
+                    tipo_tarjeta = ?,
+                    recargo_porcentaje = ?,
+                    recargo_monto = ?,
+                    corregida = 1,
+                    motivo_correccion = ?,
+                    fecha_correccion = NOW(),
+                    id_usuario_correccion = ?
+                WHERE id_venta = ?`,
+                [
+                    nuevoTotal,
+                    total_final,
+                    metodo_pago,
+                    monto_efectivo || 0,
+                    monto_transferencia || 0,
+                    monto_tarjeta || 0,
+                    tipo_tarjeta || null,
+                    recargo_porcentaje,
+                    recargo_monto,
+                    motivo,
+                    req.user.id,
+                    id
+                ]
+            );
+
+            await connection.commit();
+
+            res.json({
+                message: "Venta corregida correctamente",
+                id_venta: id,
+                total_final
+            });
+
+        } catch (error) {
+            await connection.rollback();
+
+            res.status(500).json({
+                error: "Error al corregir venta",
+                details: error.message
+            });
+
+        } finally {
+            connection.release();
+        }
+    },
 };
 
 module.exports = ventasController;

@@ -12,6 +12,8 @@ router.get('/historial', verificarToken, ventasController.historialVentas);
 
 router.get('/:id', verificarToken, ventasController.detalleVenta);
 
+router.put('/:id/corregir', verificarToken, verificarCajaAbierta, ventasController.corregirVenta);
+
 router.put('/:id/anular', verificarToken, ventasController.anularVenta);
 
 module.exports = router;

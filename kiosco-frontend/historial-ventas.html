@@ -223,6 +223,46 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalCorregirVenta" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">Corregir Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <input type="hidden" id="venta-id-corregir">
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Motivo de corrección</label>
+                    <textarea id="motivo-correccion" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div id="correccion-items-container">
+                    <p class="text-muted">
+                        Próximamente edición de productos.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-warning" id="confirmar-correccion">
+                    Guardar Corrección
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script src="/js/bootstrap.bundle.min.js"></script>
 <script src="/js/config.js"></script>
 <script src="/js/historial-ventas.js"></script>
